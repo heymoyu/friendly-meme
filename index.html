@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大乐透摇一摇</title>
+    <style>
+        body {
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            margin: 20px;
+            text-align: center;
+        }
+
+        .numbers {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .number-ball {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ff6666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .blue-ball {
+            background: #3399ff;
+        }
+
+        #shakeBtn {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #shakeBtn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .shaking {
+            animation: shake 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h2>摇一摇生成号码</h2>
+        <div class="numbers" id="frontArea"></div>
+        <div class="numbers" id="backArea"></div>
+        <button id="shakeBtn">点击摇一摇</button>
+    </div>
+
+    <script>
+function updateNumbers() {
+       // 新增音效（需要准备音效文件或使用在线链接）
+       const audio = new Audio('https://example.com/shake-sound.mp3');
+       audio.play();
+       // 原代码继续...
+   }
+        function generateNumbers(total, count, isFront = true) {
+            const numbers = new Set();
+            while(numbers.size < count) {
+                numbers.add(Math.floor(Math.random() * total) + 1);
+            }
+            return Array.from(numbers).sort((a, b) => a - b);
+        }
+
+        function updateNumbers() {
+            // 触发摇动动画
+            document.getElementById('container').classList.add('shaking');
+            setTimeout(() => {
+                document.getElementById('container').classList.remove('shaking');
+            }, 500);
+
+            // 生成号码
+            const front = generateNumbers(35, 5);
+            const back = generateNumbers(12, 2);
+
+            // 更新显示
+            document.getElementById('frontArea').innerHTML = front
+                .map(num => `<div class="number-ball">${num.toString().padStart(2, '0')}</div>`)
+                .join('');
+
+            document.getElementById('backArea').innerHTML = back
+                .map(num => `<div class="number-ball blue-ball">${num.toString().padStart(2, '0')}</div>`)
+                .join('');
+        }
+
+        // 按钮点击事件
+        document.getElementById('shakeBtn').addEventListener('click', updateNumbers);
+
+        // 初始化首次生成
+        updateNumbers();
+
+        // 手机摇一摇检测（需要HTTPS环境）
+        let shakeThreshold = 15;
+        let lastShake = 0;
+       
+        if (window.DeviceMotionEvent) {
+            window.addEventListener('devicemotion', (e) => {
+                const acceleration = e.accelerationIncludingGravity;
+                const currentTime = Date.now();
+               
+                if (currentTime - lastShake > 1000) {
+                    const totalAcceleration = Math.abs(acceleration.x) + Math.abs(acceleration.y) + Math.abs(acceleration.z);
+                    if (totalAcceleration > shakeThreshold) {
+                        updateNumbers();
+                        lastShake = currentTime;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
